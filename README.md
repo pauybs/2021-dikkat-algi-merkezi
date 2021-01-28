@@ -1,6 +1,6 @@
 # 2021-dikkat-algi-merkezi
 
-# Kapsam, İçerik ve Amaç
+## Kapsam, İçerik ve Amaç
 
 - Dikkat ve algı merkezi uygulaması, Denizli Neurosund Dikkat ve Algı Merkezi için geliştirilmiştir. Kurumun karşılaştığı sorun doğrultusunda çözüm olarak sunulmuş bir sistemdir.
 - Kurum, başvuru yapan öğrencilere öncelikle testler uygulamakta. Bu testlerin sonucunda öğrencilere üç aylık eğitim uygulamaktadır. Her ay öğrencilerin test ölçümü tekrarlanmakta ancak geçen aya göre ne kadar ilerleme kat ettiğine dair ellerinde spesifik bir değer bulunmamaktadır.
