@@ -21,6 +21,8 @@
 
 + Java
     + Spring Boot framework
+    + Apache Maven
+    + Apache Tomcat
 + Javascript
 + HTML, CSS
 + MYSQL
