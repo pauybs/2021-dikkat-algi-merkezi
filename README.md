@@ -8,7 +8,7 @@
 
 > **Uygulamaya ek olarak** öğrenciye yapılan veya yapılacak olan test tarihinin tutulduğu takvim eklendi.  Aynı zamanda testlerden düşük alan öğrenciler için tavsiye oluşturma projeye dahil edildi.
 
-###Yapılanlar Listesi
+### Yapılanlar Listesi
 
 - [x] Öğrenci Kayıt, Listeleme
 - [x] Takvim
@@ -16,7 +16,7 @@
 - [x] Tavsiyeler
 - [x] Test Profil ve Açıklamalar
 
-###Kullanılan Sistemler
+### Kullanılan Sistemler
                 
 
 + Java
@@ -26,6 +26,6 @@
 + MYSQL
 
 
-###Ekran Görüntüsü
+### Ekran Görüntüsü
 
 ![](https://github.com/pauybs/2021-dikkat-algi-merkezi/blob/main/src/main/resources/static/js/theme/html/demo1/dist/assets/media/logos/newProject.png)
