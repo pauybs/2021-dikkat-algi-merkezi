@@ -28,4 +28,4 @@
 
 ###Ekran Görüntüsü
 
-![](https://github.com/pauybs/2021-dikkat-algi-merkezi/)
+![](https://github.com/pauybs/2021-dikkat-algi-merkezi/blob/main/src/main/resources/static/js/theme/html/demo1/dist/assets/media/logos/newProject.png)
