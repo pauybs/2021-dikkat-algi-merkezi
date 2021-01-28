@@ -19,7 +19,7 @@
 ### Kullanılan Sistemler
                 
 
-+ Java
++ Java EE
     + Spring Boot framework
     + Apache Maven
     + Apache Tomcat
