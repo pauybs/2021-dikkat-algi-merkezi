@@ -138,7 +138,7 @@ inputs.on('input', function () {
 
 
 $(document).ready(function () {
-
+    var surveyKey = localStorage.getItem('surveyKey');
 
     var deger, test, teststd, teststd_all;
     var urlStd, urlTest, urlTS;
@@ -161,7 +161,7 @@ $(document).ready(function () {
 
 
     $.ajax({
-        url: "/student/list",
+        url: "/student/list/"+surveyKey,
         method: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -205,7 +205,7 @@ $(document).ready(function () {
 
     }
     $.ajax({
-        url: "/tests/list",
+        url: "/tests/list/"+surveyKey,
         method: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -226,7 +226,7 @@ $(document).ready(function () {
 
     //var testdate = top.consoleRef.document.getElementById('kt_datepicker').innerHTML;
     $.ajax({
-        url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/listByResult",
+        url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/listByResult/"+surveyKey,
         method: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -288,7 +288,7 @@ $(document).ready(function () {
             $('#exampleModalSizeSm').on('click', '#deleteButton', function () {
                 $.ajax({
 
-                    url: "/result/delete",
+                    url: "/result/delete/"+surveyKey,
                     method: "DELETE",
                     data: variable,
 
@@ -318,7 +318,7 @@ $(document).ready(function () {
             title: studentname + "-" + testNameValue,
         };
         $.ajax({
-            url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/add",
+            url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/add/"+surveyKey,
             type: "POST",
             data: test_obj,
             xhrFields: {
@@ -364,7 +364,7 @@ $(document).ready(function () {
             students_ref: urlStd,
         };
         $.ajax({
-            url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/ts/" + urlTS + "/put",
+            url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/ts/" + urlTS + "/put/"+surveyKey,
 
             type: "PUT",
             data: objPut,
@@ -392,7 +392,7 @@ $(document).ready(function () {
             test_student_id: urlTS,
         }
         $.ajax({
-            url: "/result/teststudent/" + urlTS + "/add",
+            url: "/result/teststudent/" + urlTS + "/add/"+surveyKey,
             type: "POST",
             data: result_obj,
             xhrFields: {

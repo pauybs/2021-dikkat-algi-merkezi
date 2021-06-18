@@ -1,5 +1,5 @@
 $(document).ready(function () {
-
+    var surveyKey = localStorage.getItem('surveyKey');
     var calendarEl = document.getElementById('calendar');
     var initialLocaleCode = 'tr';
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -16,7 +16,7 @@ $(document).ready(function () {
         selectable: true,
         selectHelper: true,
         events: {
-            url: '/teststudent/list',
+            url: '/teststudent/list/'+ surveyKey,
             failure: function () {
                 document.getElementById('script-warning').style.display = 'block'
             }

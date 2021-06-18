@@ -7,10 +7,11 @@ field.addEventListener("change", function () {
     sessionStorage.setItem("autosave", field.value);
 });*/
 $(document).ready(function () {
+    var surveyKey = localStorage.getItem('surveyKey');
     var deger;
     var variable;
     $.ajax({
-        url: "/student/list",
+        url: "/student/list/"+surveyKey,
         method: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -142,7 +143,7 @@ $(document).ready(function () {
             })
             $('#exampleModalSizeSm').on('click', '#deleteButton', function () {
                 $.ajax({
-                    url: "/student/delete",
+                    url: "/student/delete/"+surveyKey,
                     method: "DELETE",
                     data: variable,
                 })

@@ -1,34 +1,40 @@
 package com.example.template.controller;
 
-import com.example.template.model.db.master.TestStudent;
-import com.example.template.model.db.master.Tests;
-import com.example.template.repositories.TestsRepository;
+import com.example.template.model.user.Students;
+import com.example.template.model.user.Tests;
+import com.example.template.sevices.TestsService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tests")
-public class TestsController {
+public class TestsController extends AbstractController{
+
+    private TestsService testsService;
     @Autowired
-    TestsRepository testRepository;
-
-    @GetMapping(value = "/list")
-    public List<Tests> listTestJoin(HttpSession httpSession){
-        Iterable<Tests> sts = testRepository.findAll();
-        return Lists.newArrayList(sts);
+    public void setTestsService(TestsService testsService) {
+        this.testsService = testsService;
     }
-    @GetMapping(value = "/listById")
-    public List<Tests> listStudent(HttpSession httpSession){
-        Iterable<Tests> sts = testRepository.findByRef(1);
 
-        return Lists.newArrayList(sts);
+    @GetMapping(value = "/list/{ssid}")
+    public List<Tests> listTestJoin(HttpServletRequest request, HttpSession httpSession,
+                                    @PathVariable(value = "ssid") String ssid ) throws Exception {
+        Iterable<Tests> tests = null;
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            tests= testsService.findAll(v);
+            return Lists.newArrayList(tests);
+        } else {
+            throw new Exception("");
+        }
     }
 
 }

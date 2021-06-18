@@ -1,72 +1,105 @@
 package com.example.template.controller;
 
-import com.example.template.model.db.master.*;
-import com.example.template.repositories.AdviceRepository;
-import com.example.template.repositories.TestsRepository;
+import com.example.template.model.user.Advice;
+import com.example.template.model.user.Students;
+import com.example.template.model.user.Tests;
+import com.example.template.sevices.AdviceService;
+import com.example.template.sevices.TestsService;
 import com.google.common.collect.Lists;
-import org.hibernate.query.criteria.internal.expression.function.AbsFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/advice")
-public class AdviceController {
+public class AdviceController extends AbstractController {
+
+    private AdviceService adviceService;
     @Autowired
-    AdviceRepository adviceRepository;
+    public void setAdviceService(AdviceService adviceService) {
+        this.adviceService = adviceService;
+    }
+
+
+    private TestsService testsService;
     @Autowired
-    TestsRepository testsRepository;
+    public void setTestsService(TestsService testsService) {
+        this.testsService = testsService;
+    }
 
-    @GetMapping(value = "/list")
-    public List<Advice> listTestJoin(HttpSession httpSession){
-        Iterable<Advice> sts = adviceRepository.findAll();
-        return Lists.newArrayList(sts);
+    @GetMapping(value = "/list/{ssid}")
+    public List<Advice> list(HttpServletRequest request, HttpSession httpSession,@PathVariable(value = "ssid") String ssid) throws Exception {
+        Iterable<Advice> sts  = null;
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            sts= adviceService.findAll(v);
+            return Lists.newArrayList(sts);
+        } else {
+            throw new Exception("");
+        }
     }
-    @GetMapping(value = "/tests/{tests_ref}")
-    public List<Advice> filterAllTest(@PathVariable (value = "tests_ref") Long tests_ref,
-                                                 Advice advice){
-        return adviceRepository.findByTestsRef(tests_ref);
+    @GetMapping(value = "/tests/{tests_ref}/{ssid}")
+    public List<Advice> filterAllTest(HttpServletRequest request, HttpSession httpSession,
+                                      @PathVariable(value = "ssid") String ssid,
+                                      @PathVariable (value = "tests_ref") Long tests_ref,
+                                      Advice advice) throws Exception {
+        Iterable<Advice> sts  = null;
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            sts = adviceService.findByTestsRef(v, tests_ref);
+            return Lists.newArrayList(sts);
+        } else {
+            throw new Exception("");
+        }
     }
-    @PostMapping("/tests/{tests_ref}/add")
-    public ResponseEntity<Advice> getById(@PathVariable (value = "tests_ref") Long tests_ref, Advice advice) {
-        Optional<Tests> optionalTests = testsRepository.findById(tests_ref);
-        if (!optionalTests.isPresent()) {
-            return ResponseEntity.unprocessableEntity().build();
+
+    @PostMapping("/tests/{tests_ref}/add/{ssid}")
+    public ResponseEntity<Advice> add(HttpServletRequest request, HttpSession httpSession,
+                                      @PathVariable(value = "ssid") String ssid,
+                                      @PathVariable(value = "tests_ref") Long tests_ref, Advice advice) throws Exception {
+
+        Tests tests=null;
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            tests =  testsService.findByRef(v, tests_ref);
+            advice.setTests(tests);
+            Advice savedAdvice = adviceService.saveAdvice(v, advice);
+            return ResponseEntity.ok(savedAdvice);
+        }  else {
+            throw new Exception("");
         }
 
-        advice.setTests(optionalTests.get());
-
-        Advice savedAdvice = adviceRepository.save(advice);
-
-
-        return  ResponseEntity.ok(savedAdvice);
     }
-    @PutMapping("/tests/{tests_ref}/ad/{ref}/put")
-    public ResponseEntity<TestStudent> update(@PathVariable (value = "tests_ref") Long tests_ref,
-                                              @PathVariable (value="ref") Long ref,
-                                              Advice advice) {
-        Optional<Tests> optionalTests = testsRepository.findById(tests_ref);
-        if (!optionalTests.isPresent()) {
-            return ResponseEntity.unprocessableEntity().build();
+    @PutMapping("/tests/{tests_ref}/ad/{ref}/put/{ssid}")
+    public ResponseEntity<Advice> update(HttpServletRequest request, HttpSession httpSession,
+                                         @PathVariable(value = "ssid") String ssid ,
+                                              Advice advice) throws Exception {
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            advice.setRef(advice.getRef());
+            adviceService.saveAdvice(v, advice);
+            return ResponseEntity.noContent().build();
+        }  else {
+            throw new Exception("");
         }
-
-        Optional<Advice> optionalAdvice= adviceRepository.findById(ref);
-        if (!optionalAdvice.isPresent()) {
-            return ResponseEntity.unprocessableEntity().build();
-        }
-
-        advice.setTests(optionalTests.get());
-        advice.setRef(optionalAdvice.get().getRef());
-        adviceRepository.save(advice);
-
-        return ResponseEntity.noContent().build();
     }
-    @RequestMapping(value = "/delete",  method = RequestMethod.DELETE)
-    public void delete(HttpSession httpSession, Advice advice){
-        adviceRepository.delete(advice);
+    @DeleteMapping(value = "/delete/{ssid}")
+    public Advice delete(HttpServletRequest request, HttpSession httpSession,
+                                         @PathVariable(value = "ssid") String ssid ,
+                                         @RequestParam(value = "ref") Long ref, Advice advice) throws Exception {
+        Advice sts =  null;
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+
+            sts=adviceService.deleteAdvice(v, advice);
+            return sts;
+        }  else {
+            throw new Exception("");
+        }
     }
 }

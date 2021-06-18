@@ -1,63 +1,79 @@
 package com.example.template.controller;
 
-import com.example.template.exception.ResourceNotFoundException;
-import com.example.template.model.db.master.Students;
-import com.example.template.repositories.StudentsRepository;
+
+import com.example.template.GlobalVariables;
+import com.example.template.model.user.Advice;
+import com.example.template.model.user.Students;
+import com.example.template.sevices.StudentsService;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletMapping;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
 @RequestMapping("/student")
-public class StudentsController {
+public class StudentsController extends AbstractController {
+
+    private StudentsService studentsService;
+
     @Autowired
-    StudentsRepository studentsRepository;
-
-    @GetMapping(value = "/list")
-    public List<Students> listTestJoin(HttpSession httpSession){
-        Iterable<Students> sts = studentsRepository.findAll();
-        return Lists.newArrayList(sts);
+    public void setStudentsService(StudentsService studentsService) {
+        this.studentsService = studentsService;
     }
 
-    public List<Students> listStudent(HttpSession httpSession){
-        Iterable<Students> sts = studentsRepository.findAll();
-     //   studentRepository.findByName("rukiye");
-        return Lists.newArrayList(sts);
-    }
-    @PostMapping(value = "/add")
-    public Students addStudent(HttpSession httpSession, Students student){
-        Students sts =  studentsRepository.save(student);
-        return sts;
-    }
-    @RequestMapping(value = "/delete",  method = RequestMethod.DELETE)
-    public void deleteStudent(HttpSession httpSession, Students students){
-      studentsRepository.delete(students);
+    @GetMapping(value = "/list/{ssid}")
+    public List<Students> listStudent(HttpServletRequest request, HttpSession httpSession,
+                                      @PathVariable(value = "ssid") String ssid ) throws Exception {
 
+        Iterable<Students> students = null;
+         v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            students= studentsService.findAll(v);
+            return Lists.newArrayList(students);
+        } else {
+            throw new Exception("");
+        }
     }
-    @PutMapping("/update/{student_ref}")
-    public Students updatePost(@PathVariable Long student_ref, Students student) {
-        return studentsRepository.findById(student_ref).map(post -> {
-            post.setAdress1(student.getAdress1());
-            post.setStd_name(student.getStd_name());
-            post.setStd_surname(student.getStd_surname());
-            post.setBirthday(student.getBirthday());
-            post.setBirthplace(student.getBirthplace());
-            post.setSaint(student.getSaint());
-            post.setPhone1(student.getPhone1());
-            post.setPhone2(student.getPhone2());
-            post.setMail(student.getMail());
-            post.setSchool(student.getSchool());
-            post.setGrade(student.getGrade());
-            post.setStatus(student.getStatus());
-            post.setNote(student.getNote());
-            post.setProgram(student.getProgram());
-            post.setProfileType(student.getProfileType());
-            return studentsRepository.save(post);
-        }).orElseThrow(() -> new ResourceNotFoundException("PostId " + student_ref + " not found"));
+    @PutMapping("/update/{ssid}")
+    public ResponseEntity<Students> updatePost(HttpServletRequest request, HttpSession httpSession,
+                                               @PathVariable(value = "ssid") String ssid,
+                                               Students student) throws Exception {
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            student.setRef(student.getRef());
+            studentsService.saveStudent(v, student);
+            return ResponseEntity.noContent().build();
+        }  else {
+            throw new Exception("");
+        }
+    }
+    @PostMapping(value = "/add/{ssid}")
+    public Students addStudent(HttpServletRequest request, HttpSession httpSession,
+                               @PathVariable(value = "ssid") String ssid, Students student) throws Exception {
+         v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
+            Students savedStudents = studentsService.saveStudent(v, student);
+            return savedStudents;
+        }  else {
+            throw new Exception("");
+        }
+    }
+    @DeleteMapping(value = "/delete/{ssid}")
+    public Students deleteStudent(HttpServletRequest request, HttpSession httpSession,
+                              @PathVariable(value = "ssid") String ssid, Students students) throws Exception {
+        Students sts =  null;
+        v = checkUser(request, httpSession, ssid);
+        if( v != null ) {
 
-
+            sts=studentsService.deleteStudent(v, students);
+            return sts;
+        }  else {
+            throw new Exception("");
+        }
     }
 }

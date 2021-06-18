@@ -5,3 +5,4 @@ var urls = {
 var path = {
     server: urls.local,
 }
+

@@ -1,10 +1,11 @@
 $(document).ready(function () {
+    var surveyKey = localStorage.getItem('surveyKey');
     var deger;
     var setregister, setname, setsurname, setbirthday, setbirthplace, setadress1, setsaint, setphone1, setphone2, setmail, setschool, setgrade, setstatus, setnote, setprogram, setprofileType;
     var urlId;
 
     $.ajax({
-        url: "/student/list",
+        url: "/student/list/"+surveyKey,
         type: "GET",
         xhrFields: {
             withCredentials: true
@@ -82,6 +83,7 @@ $(document).ready(function () {
         var program = document.getElementById("program").value;
         var profileType = document.getElementById("profileType").value;
         var obj = {
+            ref: 0,
             std_name: studentname,
             std_surname: surname,
             birthday: birthday,
@@ -102,7 +104,7 @@ $(document).ready(function () {
         urlId = getUrlParameter("id")
         if (urlId == null) {
             $.ajax({
-                url: "/student/add/",
+                url: "/student/add/"+surveyKey,
                 type: "POST",
                 data: obj,
                 xhrFields: {
@@ -117,8 +119,9 @@ $(document).ready(function () {
                     console.error(errorThrown);
                 })
         } else {
+            obj.ref = urlId;
             $.ajax({
-                url: "/student/update/" + urlId,
+                url: "/student/update/"+surveyKey,
                 type: "PUT",
                 data: obj,
                 xhrFields: {

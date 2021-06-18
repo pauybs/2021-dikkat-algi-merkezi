@@ -4,7 +4,13 @@
  * Copyright 2011-2020 The Bootstrap Authors
  * Copyright 2011-2020 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
- */
+ */Swal.fire({
+     position: 'top-end',
+     icon: 'success',
+     title: 'Your work has been saved',
+     showConfirmButton: false,
+     timer: 1500
+   })
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -59218,7 +59224,7 @@ body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
   padding: 2rem;
   border-radius: 0.42rem; }
   .swal2-popup .swal2-icon {
-    margin: 2rem 0 0rem 0; }
+     }
   .swal2-popup .swal2-title {
     font-weight: 500;
     font-size: 1.3rem;

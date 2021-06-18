@@ -1,7 +1,7 @@
 package com.example.template.session;
 
 
-import com.example.template.model.db.master.Auth;
+import com.example.template.model.master.Auth;
 
 import javax.servlet.http.HttpSession;
 

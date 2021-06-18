@@ -1,9 +1,9 @@
 
 $(document).ready(function () {
-
+    var surveyKey = localStorage.getItem('surveyKey');
     var studentname;
     var items = [];
-    var variable, itemkey, itemvalue, deger, test, ts_items;
+    var std_variable, ts_variable, itemkey, itemvalue, deger, test, ts_items, teststd;
     var urlRef, urlStd, urlTest, urlTs;
     var test_visibility = document.getElementById('test_content_visible');
     var test_visible = document.getElementById('testName');
@@ -11,9 +11,9 @@ $(document).ready(function () {
         test_visibility.style.visibility = 'hidden';
     }
     test_visibility.style.visibility = 'hidden';
-
+    document.getElementById("testAddBtn").disabled = true;
     $.ajax({
-        url: "/teststudent/list",
+        url: "/teststudent/list/"+surveyKey,
         type: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -35,8 +35,103 @@ $(document).ready(function () {
                 }
             }
         })
+
+
+    if (getUrlParameter("id") != null && getUrlParameter("ref") != null) {
+        urlTest = getUrlParameter("ref");
+        urlStd = getUrlParameter("id");
+        $.ajax({
+            url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/listByResult/"+surveyKey,
+            method: "GET",
+        })
+            .done(function (data, textStatus, jqXHR) {
+                teststd = data;
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                alert("Error");
+            })
+            .then(function () {
+
+                for (var i = 0; i < teststd.length; i++) {
+                    start = teststd[i].start;
+                    end = teststd[i].end;
+                    title = teststd[i].title;
+                }
+
+                var table = $('#test_datatable').DataTable({
+
+                    "data": teststd,
+                    "language": {
+                        "url": "http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json"
+                    },
+                    columns: [
+                        { "data": null },
+                        { "data": "title" },
+                        {
+                            "data": "start",
+                            type: 'date',
+                            render: function (data, type, row) {
+                                return data ? moment(data).format('DD/MM/YYYY') : '';
+
+                            },
+                        },
+                        { "data": "status" },
+
+                    ],
+                    layout: {
+                        scroll: false, // enable/disable datatable scroll both horizontal and vertical when needed.
+                        footer: false, // display/hide footer
+                    },
+                    "bLengthChange": false,
+                    paging: false,
+                    searching: false,
+                    destroy: true,
+                });
+                table.on('order.dt search.dt', function () {
+                    table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                        cell.innerHTML = i + 1;
+                    });
+                }).draw();
+                $('#test_datatable tbody').on('click', 'tr', function () {
+
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                    }
+                    else {
+                        table.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                    }
+                    ts_variable = table.row('.selected').data().ref;
+                    if (table.row('.selected')) {
+                        document.getElementById("testAddBtn").disabled = false;
+
+                    }
+                });
+
+                $('#exampleModalSizeSm').on('click', '#deleteButton', function () {
+                    $.ajax({
+
+                        url: "/result/delete/"+surveyKey,
+                        method: "DELETE",
+                        data: ts_variable,
+
+                    })
+                        .done(function (data, textStatus, jqXHR) {
+
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            alert("Başarısız.");
+                        })
+                        .then(function () {
+                            location.href = "test_profile?id=" + urlStd + "&ref=" + urlTest + "&ts=" + ts_variable;
+
+                        })
+                });
+            })
+    }
+
     $.ajax({
-        url: "/student/list",
+        url: "/student/list/"+surveyKey,
         method: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -46,6 +141,7 @@ $(document).ready(function () {
             alert("Error");
         })
         .then(function () {
+            //öğrenci seçimi için açılan modal da listelenen tüm öğrenci listesi
             var table = $('#kt_datatable').DataTable({
 
                 "data": deger,
@@ -53,53 +149,46 @@ $(document).ready(function () {
                     "url": "http://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Turkish.json"
                 },
                 columns: [
+                    { "data": null },
                     { "data": "std_name" },
                     { "data": "std_surname" },
                     { "data": "status" },
                     { "data": "program" },
                     { "data": "profileType" },
-                    { "data": "note" },
                 ],
-                layout: {
-                    scroll: false, // enable/disable datatable scroll both horizontal and vertical when needed.
-                    footer: false, // display/hide footer
-                },
-                // column sorting
-                sortable: true,
-                // enable pagination
-                pagination: true,
                 responsive: true,
-                deferRender: true,
-                scrollY: '500px',
                 scrollCollapse: true,
-                scrollCollapse: true,
-                // "scrollY": "220px",
+                scrollY: "300px",
+                scrollX: true,
                 "paging": false,
                 lengthChange: true,
                 info: true,
                 select: true,
-                fixedHeader: false,
                 colReorder: true,
-                "scrollX": true,
                 "autoWidth": true,
-                "columnDefs": [{ "targets": 0, "orderable": false }],
-                "order": [],
             });
+            table.on('order.dt search.dt', function () {
+                table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+            }).draw();
             $('#kt_datatable tbody').on('click', 'tr', function () {
                 $(this).toggleClass('selected');
             });
             $('#selectBtn').click(function () {
                 for (var i = 0; i < table.rows('.selected').data().length; i++) {
-                    variable = table.rows('.selected').data()[i].ref;
-                    location.href = "test_profile?id=" + variable;
+                    std_variable = table.rows('.selected').data()[i].ref;
+                    location.href = "test_profile?id=" + std_variable;
                 }
             });
+
+            //öğrenci bilgilerini ilgili alana set et
             setStudent();
         });
 
 
     $.ajax({
-        url: "/tests/list",
+        url: "/tests/list/"+surveyKey,
         method: "GET",
     })
         .done(function (data, textStatus, jqXHR) {
@@ -110,6 +199,7 @@ $(document).ready(function () {
         })
         .then(function () {
             urlTest = getUrlParameter("ref")
+            urlRef = getUrlParameter("id")
             var testNameValue;
             for (var i = 0; i < test.length; i++) {
                 items[i] = {
@@ -131,10 +221,69 @@ $(document).ready(function () {
                     document.getElementById("testName").value = testNameValue;
                 }
             }
-
-            console.log("testNameValue" + testNameValue)
-            console.log("studentname" + studentname)
+            //select option değiştiğinde ilgili test ref ini gönder
+            $('#testName').change(function () {
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].value == $(this).val()) {
+                        itemkey = items[i].key;
+                        itemvalue = items[i].value;
+                        // alert('You selected: ' + $(this).val() + itemkey);
+                        location.href = "test_profile?id=" + urlRef + "&ref=" + itemkey;
+                    }
+                }
+            });
             $('#testBtn').click(function () {
+                var result = "Girilmedi";
+                var testdate = document.getElementById("kt_datepicker").value;
+                var obj = {
+                    test_date: testdate,
+                    test_id: urlTest,
+                    student_id: urlStd,
+                    end_date: testdate,
+                    title: testNameValue + "-" + studentname,
+                    status: result,
+                };
+                urlTs = getUrlParameter("ts");
+                if (urlTs == null) {
+                    $.ajax({
+                        url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/add/"+surveyKey,
+                        type: "POST",
+                        data: obj,
+                        xhrFields: {
+                            withCredentials: true
+                        }
+                    })
+                        .done(function (data, textStatus, jqXHR) {
+                            location.href = "test_profile?id=" + urlRef + "&ref=" + urlTest;
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            alert(obj + "Error" + errorThrown, jqXHR, textStatus);
+                            console.error(errorThrown);
+                        })
+                } else {
+                    /*
+                    $.ajax({
+                        url: "http://localhost:8080/teststudent/tests/" + urlTest + "/student/" + urlStd + "/ts/" + urlTs + "/put",
+
+                        type: "PUT",
+                        data: obj,
+                        xhrFields: {
+                            withCredentials: true
+                        }
+                    })
+                        .done(function (data, textStatus, jqXHR) {
+                            location.href = "test_profile?id=" + urlRef + "&ref=" + urlTest;
+
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            alert(obj + "Error" + errorThrown, jqXHR, textStatus);
+                            console.error(errorThrown);
+                        })*/
+
+                }
+            })
+
+            $("#testAddBtn").click(function () {
                 urlRef = getUrlParameter("id")
                 var program = document.getElementById("testName").value;
                 for (var i = 0; i < items.length; i++) {
@@ -144,80 +293,19 @@ $(document).ready(function () {
                     }
                 }
                 if (itemvalue == "MOXO Test") {
-                    console.log(" moxoooo " + itemvalue)
-                    window.location.href = "moxo_test?id=" + urlRef + "&ref=" + itemkey;
+                    location.href = "moxo_result_add?id=" + urlRef + "&ref=" + urlTest + "&ts=" + ts_variable;
 
                 } else if ((itemvalue == "Profil Oluşturma Anketi")) {
-                    window.location.href = "profil_olusturma_anketi?id=" + urlRef + "&ref=" + itemkey;
+                    location.href = "profil_olusturma_add?id=" + urlRef + "&ref=" + urlTest + "&ts=" + ts_variable;
 
                 } else {
-                    window.location.href = "test_profile?id=" + urlRef + "&ref=" + itemkey;
+                    location.href = "result_add?id=" + urlRef + "&ref=" + itemkey + "&ts=" + ts_variable;
 
                 }
-                //alert(itemkey)
-                //    
 
             })
 
-            $("#testAddBtn").click(function () {
-                urlStd = getUrlParameter("id")
-                urlTest = getUrlParameter("ref")
-                var testdate = document.getElementById("kt_datepicker").value;
 
-                var testresult = document.getElementById("testResult").value;
-                console.log(testresult)
-                var obj = {
-                    test_date: testdate,
-                    result: testresult,
-                    test_id: urlTest,
-                    student_id: urlStd,
-                    end_date: testdate,
-                    title: studentname + "-" + testNameValue,
-                };
-
-                urlTs = getUrlParameter("ts");
-                if (urlTs == null) {
-                    $.ajax({
-                        url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/add",
-                        type: "POST",
-                        data: obj,
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    })
-                        .done(function (data, textStatus, jqXHR) {
-
-                           // alert("testresult" + testresult)
-                            /*  location.reload;*/
-                        })
-                        .fail(function (jqXHR, textStatus, errorThrown) {
-                            alert(obj + "Error" + errorThrown, jqXHR, textStatus);
-                            console.error(errorThrown);
-                        })
-                } else {
-                    $.ajax({
-                        url: "/teststudent/tests/" + urlTest + "/student/" + urlStd + "/ts/" + urlTs + "/put",
-
-                        type: "PUT",
-                        data: obj,
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    })
-                        .done(function (data, textStatus, jqXHR) {
-
-                            //  location.reload();
-
-                           // alert("testresult put  ")
-                        })
-                        .fail(function (jqXHR, textStatus, errorThrown) {
-                            alert(obj + "Error" + errorThrown, jqXHR, textStatus);
-                            console.error(errorThrown);
-                        })
-                }
-
-
-            })
         })
 
 
